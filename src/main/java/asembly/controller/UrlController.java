@@ -7,6 +7,7 @@ import asembly.entity.Url;
 import asembly.service.UrlService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.NoSuchAlgorithmException;
@@ -21,19 +22,19 @@ public class UrlController {
     private UrlService urlService;
 
     @GetMapping
-    public List<Url> findAll()
+    public ResponseEntity<List<Url>> findAll()
     {
         return urlService.findAll();
     }
 
     @GetMapping("/{shortUrl}")
-    public LongUrlResponseDto findById(@PathVariable String shortUrl)
+    public ResponseEntity<LongUrlResponseDto> findById(@PathVariable String shortUrl)
     {
         return urlService.findLongUrlById(shortUrl);
     }
 
     @PostMapping
-    public ShortUrlResponseDto create(@RequestBody UrlCreateDto url) throws NoSuchAlgorithmException {
+    public ResponseEntity<ShortUrlResponseDto> create(@RequestBody UrlCreateDto url) throws NoSuchAlgorithmException {
         return urlService.create(url);
     }
 }

@@ -1,4 +1,3 @@
 package asembly.dto;
 
-public record LongUrlResponseDto(String longUrl) {
-}
+public record LongUrlResponseDto(String longUrl) { }

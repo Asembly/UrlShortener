@@ -7,7 +7,13 @@ import asembly.entity.Url;
 import asembly.repository.UrlRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Base64;
@@ -21,32 +27,35 @@ public class UrlService {
     @Autowired
     private UrlRepository urlRep;
 
-    public List<Url> findAll()
+    public ResponseEntity<List<Url>> findAll()
     {
-        return urlRep.findAll();
+        return ResponseEntity.ok(urlRep.findAll());
     }
 
-    public LongUrlResponseDto findLongUrlById(String shortUrl)
+    public ResponseEntity<LongUrlResponseDto> findLongUrlById(String shortUrl)
     {
-        return urlRep.findLongUrlByShort(shortUrl);
+        return ResponseEntity.ok(urlRep.findLongUrlByShort(shortUrl));
     }
 
-    public ShortUrlResponseDto create(UrlCreateDto urlDto) throws NoSuchAlgorithmException {
+    public ResponseEntity<ShortUrlResponseDto> create(UrlCreateDto urlDto) throws NoSuchAlgorithmException {
         try{
-            String shortId = generateShortId(urlDto.longUrl());
-            LongUrlResponseDto findLongUrl = this.findLongUrlById(shortId);
 
-            if(findLongUrl != null)
+            if(validateUrl(urlDto.longUrl()))
             {
-                return new ShortUrlResponseDto(shortId);
-            }
+                String shortId = generateShortId(urlDto.longUrl());
+                LongUrlResponseDto findLongUrl = urlRep.findLongUrlByShort(shortId);
 
-            Url url = new Url();
-            url.setLongUrl(urlDto.longUrl());
-            url.setShortUrl(shortId);
-            url.setCreated_at(new Date().getTime());
-            urlRep.save(url);
-            return new ShortUrlResponseDto(shortId);
+                if(findLongUrl != null)
+                    return ResponseEntity.ok(new ShortUrlResponseDto(shortId));
+
+                Url url = new Url();
+                url.setLongUrl(urlDto.longUrl());
+                url.setShortUrl(shortId);
+                url.setCreated_at(new Date().getTime());
+                urlRep.save(url);
+                return ResponseEntity.ok(new ShortUrlResponseDto(shortId));
+            }
+            return ResponseEntity.badRequest().body(new ShortUrlResponseDto(null));
         }catch(NoSuchAlgorithmException e)
         {
             throw new NoSuchAlgorithmException(e.getMessage());
@@ -62,6 +71,16 @@ public class UrlService {
         String base64Encoded = Base64.getUrlEncoder().withoutPadding().encodeToString(shortHash);
 
         return base64Encoded.substring(0, Math.min(base64Encoded.length(), 7));
+    }
+
+    private boolean validateUrl(String url)
+    {
+        try{
+            URL validUrl = new URI(url).toURL();
+            return true;
+        } catch (MalformedURLException | URISyntaxException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }
