@@ -1,6 +1,7 @@
+'use client'
 export function Input()
 {
     return(
-        <input className="bg-white/10 rounded-md text-amber-50 pl-2" type="text" name='longUrl' placeholder='введите адрес'/>
+        <input className="bg-black/5 rounded-l-md text-black pl-2 max-sm:rounded-md" type="text" name='longUrl' placeholder='input url'/>
     )
 }

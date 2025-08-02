@@ -1,11 +1,10 @@
 'use server'
 import { serverInstance } from "@/lib/axios";
 import { urlScheme } from "./schemes";
+import { Url } from "./types";
 
-export default async function createShortUrl(initialState: any, formData: FormData)
+export async function createShortUrl(initialState: any, formData: FormData)
 {
-    console.log("HEllo")
-
     const result = urlScheme.safeParse({
         longUrl: formData.get("longUrl")
     })
@@ -15,12 +14,22 @@ export default async function createShortUrl(initialState: any, formData: FormDa
     if(!result.success)
     {
         return {
-            // errors: result.error.flatten().fieldErrors
             errors: "Invalid Url" 
         }
     }
 
     const response = await serverInstance.post(`/url-shortener`, result.data)
+    .then(item => item.data)
+    .catch(error => error)
+
+    console.log(response)
+
+    return response
+}
+
+export async function getUrls(): Promise<Url[]>
+{
+    const response = await serverInstance.get('/url-shortener')
     .then(item => item.data)
     .catch(error => error)
 

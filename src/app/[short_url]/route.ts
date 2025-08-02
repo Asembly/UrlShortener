@@ -4,8 +4,7 @@ import { NextRequest } from "next/server";
 
 export async function GET(
     req: NextRequest,
-    {params} : {params: {short_url: String}}
-)
+    {params} : {params: Promise<{short_url: String}>})
 {
     const param = await params
     console.log(param.short_url)

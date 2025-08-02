@@ -1,46 +1,49 @@
 'use client'
-
-import createShortUrl from "@/app/actions"
+import {createShortUrl} from "@/app/server_actions"
 import {Button} from "@/components/Button"
 import {Input} from "@/components/Input"
-import { useActionState } from "react"
+import { useActionState} from "react"
 import { CopyButton } from "./CopyButton"
+import { getBaseUrl } from "@/app/actions"
 
 const initState = {
   message: ''
 }
 
+
+
 export function Form()
 {
 
     const [state, formAction] = useActionState(createShortUrl, initState) 
+    const baseUrl = getBaseUrl()
 
     return(
-        <div className='flex justify-center items-center mt-40'> 
+        <div className='mt-40 container flex justify-center m-auto'> 
             <div>
                 <div>
-                <form action={formAction} className="flex space-x-5"> 
-                    <Input></Input>
-                    <Button title="сократить"></Button>
-                </form>
+                    <form action={formAction} className="flex max-sm:flex-col"> 
+                        <Input></Input>
+                        <Button title="short"></Button>
+                    </form>
                 </div>
                 <div className="flex justify-center py-5">
                     <div>
                     {
                         state.errors && 
-                        <div className='text-red-300'>
+                        <div className='text-red-600 font-bold'>
                             {state.errors}
                         </div>
                     }
                     </div>
-                    <div>
+                    <div> 
                     {
                         state.shortUrl &&
                         <div>
-                            <span className="text-amber-200" id="copy">
-                                http://localhost:3000/{state.shortUrl}
+                            <span className="black text-xl" id="copy">
+                                {state.shortUrl}
                             </span>
-                            <CopyButton copyText={`http://localhost:3000/${state.shortUrl}`}></CopyButton>
+                            <CopyButton copyText={`${baseUrl + state.shortUrl}`}></CopyButton>
                         </div>
                     }
                     </div>    
